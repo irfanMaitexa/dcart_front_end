@@ -10,6 +10,6 @@ void main() {
       scaffoldBackgroundColor: Colors.white,
       fontFamily: 'Gilroy'
     ),
-    home: Loginscreen(),
+    home: Bottomnavigationbar(),
   ));
 }

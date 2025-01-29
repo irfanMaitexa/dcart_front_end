@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:online_grocery_app_ui/baseurl.dart';
 import 'dart:convert';
 import 'package:online_grocery_app_ui/screens/signupScreen.dart';
-import 'package:online_grocery_app_ui/utils/helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'bottomnavigationbar.dart';
 
@@ -88,6 +87,7 @@ class _LoginscreenState extends State<Loginscreen> {
       throw Exception('Failed to load data: ${response.statusCode}');
     }
   } catch (error) {
+    print('Error: $error');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(error.toString())),
     );
