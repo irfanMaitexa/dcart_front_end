@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:online_grocery_app_ui/baseurl.dart';
 import 'package:online_grocery_app_ui/screens/loginScreen.dart';
+import 'package:online_grocery_app_ui/screens/user_complaint_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,12 +14,13 @@ Future<String?> getPhoneNumber() async {
   return prefs.getString('phone_number');
 }
 
-
 Future<Map<String, dynamic>> fetchProfile(String phone) async {
-   // Replace with your base URL
   final String endpoint = '/customer/$phone/';
 
+  print('---------------------------------$phone');
+
   final response = await http.get(Uri.parse(baseUrl + endpoint));
+  print(response.body);
 
   if (response.statusCode == 200) {
     return json.decode(response.body);
@@ -26,7 +28,6 @@ Future<Map<String, dynamic>> fetchProfile(String phone) async {
     throw Exception('Failed to load profile');
   }
 }
-
 
 class Accountscreen extends StatefulWidget {
   Accountscreen({super.key});
@@ -36,17 +37,6 @@ class Accountscreen extends StatefulWidget {
 }
 
 class _AccountscreenState extends State<Accountscreen> {
-  List<Map<String, dynamic>> list = [
-    {'image': 'asset/images/ordersIconAccount.png', 'text': 'Orders'},
-    {'image': 'asset/images/MyDetailsiconAccount.png', 'text': 'My Details '},
-    {'image': 'asset/images/de;iveryAccount.png', 'text': 'Delivery Address'},
-    {'image': 'asset/images/paymentAccount.png', 'text': 'Payment Method'},
-    {'image': 'asset/images/promocodeAccount.png', 'text': 'Promo Code'},
-    {'image': 'asset/images/belliconAccount.png', 'text': 'Notifications'},
-    {'image': 'asset/images/helpiconAccount.png', 'text': 'Help'},
-    {'image': 'asset/images/abouticonAccount.png', 'text': 'About'}
-  ];
-
   File? image;
   Map<String, dynamic>? profileData;
   bool isLoading = true;
@@ -90,140 +80,223 @@ class _AccountscreenState extends State<Accountscreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ht = MediaQuery.of(context).size.height;
-    final wt = MediaQuery.of(context).size.width;
-
     return SafeArea(
       child: Scaffold(
-        body: isLoading
-            ? Center(child: CircularProgressIndicator())
-            : Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(25.0),
-                    child: Row(
-                      children: [
-                        Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 60,
-                              child: Icon(Icons.person, size: 60),
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blue.shade50, Colors.white],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child: isLoading
+              ? Center(child: CircularProgressIndicator())
+              : Column(
+                  children: [
+                    // Custom App Bar
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.arrow_back, color: Colors.black),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            'Profile',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
                             ),
-                            Positioned(
-                              right: -8,
-                              bottom: 0,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  showModalBottomSheet(
-                                    context: context,
-                                    builder: (context) {
-                                      return SizedBox(
-                                        width: MediaQuery.of(context).size.width,
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            ElevatedButton(
-                                              onPressed: () async {
-                                                Navigator.pop(context);
-                                                await pickImage(source: ImageSource.gallery);
-                                              },
-                                              child: Text('Gallery'),
-                                            ),
-                                            ElevatedButton(
-                                              onPressed: () async {
-                                                Navigator.pop(context);
-                                                await pickImage(source: ImageSource.camera);
-                                              },
-                                              child: Text('Camera'),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                                child: Icon(Icons.add, size: 18, color: Colors.white),
-                                style: ElevatedButton.styleFrom(
-                                  shape: CircleBorder(),
-                                  padding: EdgeInsets.all(10),
-                                  backgroundColor: Colors.blue,
-                                  foregroundColor: Colors.red,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Profile Section
+                    Padding(
+                      padding: const EdgeInsets.all(25.0),
+                      child: Row(
+                        children: [
+                          Stack(
+                            children: [
+                              Container(
+                                width: 120,
+                                height: 120,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.blue.shade200,
+                                    width: 3,
+                                  ),
+                                ),
+                                child: ClipOval(
+                                  child: image != null
+                                      ? Image.file(image!, fit: BoxFit.cover)
+                                      : Icon(Icons.person, size: 60, color: Colors.blue.shade200),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(width: 40),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              profileData?['name'] ?? 'Afsar Hossen',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                            ),
-                            Text(
-                              profileData?['phone'] ?? 'Imshuvo97@gmail.com',
-                              style: TextStyle(color: Color(0xff7C7C7C), fontSize: 16),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Divider(height: 5),
-                  Expanded(
-                    child: ListView.separated(
-                      separatorBuilder: (context, index) => Divider(height: 5),
-                      itemCount: list.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Row(
-                            children: [
-                              Image.asset(list[index]['image']),
-                              SizedBox(width: 15),
-                              Text(
-                                list[index]['text'],
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                              Positioned(
+                                right: 0,
+                                bottom: 0,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.blue,
+                                  ),
+                                  child: IconButton(
+                                    icon: Icon(Icons.camera_alt, size: 20, color: Colors.white),
+                                    onPressed: () {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        builder: (context) {
+                                          return SizedBox(
+                                            width: MediaQuery.of(context).size.width,
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ElevatedButton(
+                                                  onPressed: () async {
+                                                    Navigator.pop(context);
+                                                    await pickImage(source: ImageSource.gallery);
+                                                  },
+                                                  child: Text('Gallery'),
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed: () async {
+                                                    Navigator.pop(context);
+                                                    await pickImage(source: ImageSource.camera);
+                                                  },
+                                                  child: Text('Camera'),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ),
                               ),
-                              Spacer(),
-                              Icon(Icons.arrow_forward_ios_rounded),
                             ],
                           ),
-                        );
-                      },
+                          SizedBox(width: 20),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                profileData?['name'] ?? 'Afsar Hossen',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 22,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                profileData?['phone'] ?? 'Imshuvo97@gmail.com',
+                                style: TextStyle(
+                                  color: Colors.grey.shade700,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Divider(height: 5),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      fixedSize: Size(364, 67),
-                    ),
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => Loginscreen()),
-                        (route) => false,
-                      );
-                    },
-                    child: Row(
-                      children: [
-                        Icon(Icons.logout, color: Colors.green),
-                        Center(
-                          child: Text(
-                            'Log Out',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.green),
+                    Divider(height: 5),
+
+                    // Make a Complaint Button
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: Size(double.infinity, 60),
+                          backgroundColor: Colors.white,
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                      ],
+                        onPressed: () {
+
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => ComplaintListScreen(),));
+                         
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.report_problem, color: Colors.orange),
+                            SizedBox(width: 10),
+                            Text(
+                              'Make a Complaint',
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
+
+                    // Log Out Button
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: Size(double.infinity, 60),
+                          backgroundColor: Colors.white,
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => Loginscreen()),
+                            (route) => false,
+                          );
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.logout, color: Colors.red),
+                            SizedBox(width: 10),
+                            Text(
+                              'Log Out',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+        ),
       ),
     );
   }
 }
-
-
