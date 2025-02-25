@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "165727969734",
+    "firebase_url": "https://dgcart-ce33b-default-rtdb.firebaseio.com",
+    "project_id": "dgcart-ce33b",
+    "storage_bucket": "dgcart-ce33b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:165727969734:android:43ce7b4244aaa27a0f12c7",
+        "android_client_info": {
+          "package_name": "com.example.online_grocery_app_ui"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACox2gtccy4YvzROV1WvE5Cbj8h1HDQtw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

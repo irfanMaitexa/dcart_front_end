@@ -60,10 +60,11 @@ class HomeScreenCustomWidget2 extends StatelessWidget {
                         ),
 
 
-                        Image.asset(
+                        Image.network(
                           image,
                           width: 99.89,
                           height: 79.43,
+                          fit: BoxFit.cover,
                         ),
                         SizedBox(
                           height: 20,
@@ -101,21 +102,8 @@ class HomeScreenCustomWidget2 extends StatelessWidget {
                                   fontWeight: FontWeight.w600,
                                   color: Color(0xff181725)),
                             ),
-                            ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  fixedSize: Size(47.67, 47.67),
-                                  backgroundColor: Color(0xff53B175),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(12), // <-- Radius
-                                  ),
-                                ),
-                                onPressed:ontab,
-                                child: Icon(
-                                  Icons.add,
-                                  size: 17,
-                                  color: Colors.white,
-                                ))
+                          
+                         
                           ],
                         )
                       ],

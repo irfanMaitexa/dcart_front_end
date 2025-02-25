@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:online_grocery_app_ui/baseurl.dart';
+import 'package:online_grocery_app_ui/screens/check_out_screen.dart';
 import 'package:online_grocery_app_ui/widgets/custombuttonWidget.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:convert'; // For jsonDecode
@@ -22,22 +24,18 @@ class _MycartscreenState extends State<Mycartscreen> {
 
   void _connectToWebSocket() {
     _channel = WebSocketChannel.connect(
-      Uri.parse('wss://c17e-117-213-14-221.ngrok-free.app/ws/cart/1/'),
+      Uri.parse('$wBaseUrl/ws/cart/1/'),
     );
 
-    
-
-
-
     _channel.stream.listen((message) {
+      print('WebSocket message: $message');
       final data = jsonDecode(message);
       print(data);
-      
-        setState(() {
-          cartList = data['data'];
-          print(cartList);
-        });
-      
+
+      setState(() {
+        cartList = data['data'];
+        print(cartList);
+      });
     }, onError: (error) {
       print('WebSocket error: $error');
     }, onDone: () {
@@ -130,14 +128,7 @@ class _MycartscreenState extends State<Mycartscreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                IconButton(
-                                  icon: Icon(Icons.close, color: Color(0xffB3B3B3)),
-                                  onPressed: () {
-                                    setState(() {
-                                      cartList.removeAt(index);
-                                    });
-                                  },
-                                ),
+                                
                                 SizedBox(height: 10),
                                 Text(
                                   '\$${totalPrice.toStringAsFixed(2)}',
@@ -160,24 +151,20 @@ class _MycartscreenState extends State<Mycartscreen> {
               ),
             ),
             CustomButtonWidget(
-              text: 'Go To Checkout',
+              text: 'Make bill',
               action: () {
                 double totalCost = getTotalCost();
-                showModalBottomSheet(
-                  context: context,
-                  builder: (context) => Container(
-                    width: MediaQuery.of(context).size.width,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          // Checkout UI here
-                        ],
-                      ),
+                print(cartList);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CheckoutScreen(
+                      cartItems: cartList,
+                      totalAmount: totalCost,
                     ),
                   ),
                 );
+              
               },
             ),
           ],

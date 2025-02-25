@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:online_grocery_app_ui/baseurl.dart';
+import 'package:online_grocery_app_ui/clodinary_upload.dart';
 
 class AddProductScreen extends StatefulWidget {
   @override
@@ -39,77 +42,73 @@ class _AddProductScreenState extends State<AddProductScreen> {
     }
   }
 
-  Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true; // Start loading
-      });
+// Import this for jsonEncode and base64Encode
 
-      // Form is valid, proceed with saving the product
-      final product = {
-        'name': _nameController.text,
-        'description': _descriptionController.text,
-        'price': double.parse(_priceController.text),
-        'stock': int.parse(_stockController.text),
-      };
 
-      // Create a multipart request
-      final uri = Uri.parse('$baseUrl/api/products/add/');
-      final request = http.MultipartRequest('POST', uri);
 
-      // Add fields to the request
-      request.fields['name'] = product['name'].toString();
-      request.fields['description'] = product['description'].toString();
-      request.fields['price'] = product['price'].toString();
-      request.fields['stock'] = product['stock'].toString();
+Future<void> _submitForm() async {
+  if (_formKey.currentState!.validate()) {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
 
-      // Add image file if selected
-      if (_imageFile != null) {
-        final fileStream = http.ByteStream(_imageFile!.openRead());
-        final length = await _imageFile!.length();
-        final multipartFile = http.MultipartFile(
-          'image',
-          fileStream,
-          length,
-          filename: _imageFile!.path.split('/').last,
-        );
-        request.files.add(multipartFile);
-      }
-
-      try {
-        // Send the request
-        final response = await request.send();
-
-        if (response.statusCode == 201) {
-          // Product created successfully
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Product added successfully!')),
-          );
-          // Clear the form after submission
-         
-          setState(() {
-             _formKey.currentState!.reset();
-            _imageFile = null; // Clear the selected image
-          });
-        } else {
-          // Handle errors
-          final responseBody = await response.stream.bytesToString();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to add product: $responseBody')),
-          );
-        }
-      } catch (e) {
-        // Handle exceptions
+    try {
+      if (_imageFile == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text('Please select an image')),
         );
-      } finally {
-        setState(() {
-          _isLoading = false; // Stop loading
-        });
+        return;
       }
+
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl/api/products/add/'),
+      );
+
+      // Attach image file
+      var imageFile = await http.MultipartFile.fromPath(
+        'image', // The field name expected by the API
+        _imageFile!.path,
+      );
+
+      request.files.add(imageFile);
+
+      // Add other fields
+      request.fields['name'] = _nameController.text;
+      request.fields['description'] = _descriptionController.text;
+      request.fields['price'] = _priceController.text;
+      request.fields['stock'] = _stockController.text;
+
+      // Send request
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      print(response.body);
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Product added successfully!')),
+        );
+        setState(() {
+          _formKey.currentState!.reset();
+          _imageFile = null;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add product: ${response.body}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {

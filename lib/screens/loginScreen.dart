@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:online_grocery_app_ui/baseurl.dart';
 import 'dart:convert';
 import 'package:online_grocery_app_ui/screens/signupScreen.dart';
+import 'package:online_grocery_app_ui/staff/staff_login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'bottomnavigationbar.dart';
 
@@ -23,9 +24,6 @@ class _LoginscreenState extends State<Loginscreen> {
   String? phoneError;
   String? passwordError;
 
-  // Base URL for the API
- // Replace with your actual base URL
-
   // Validate password
   String? validatePassword({required String password}) {
     if (password.isEmpty) {
@@ -38,65 +36,60 @@ class _LoginscreenState extends State<Loginscreen> {
 
   // Handle login
   Future<void> handleLogin() async {
-  // Validate inputs
-  phoneError = validatePhone(phoneController.text);
-  passwordError = validatePassword(password: passwordController.text);
+    // Validate inputs
+    phoneError = validatePhone(phoneController.text);
+    passwordError = validatePassword(password: passwordController.text);
 
-  if (phoneError != null || passwordError != null) {
-    setState(() {});
-    return;
-  }
-
-  setState(() {
-    isLoading = true; // Start loading
-  });
-
-  try {
-    // Prepare the request body
-    final Map<String, dynamic> requestBody = {
-      'phone': phoneController.text,
-      'password': passwordController.text,
-    };
-
-    // Make the API call
-    final response = await http.post(
-      Uri.parse('$baseUrl/api/login/'), // Replace with your actual API endpoint
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(requestBody),
-    );
-
-    // Check the response status code
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-
-      // Store the phone number in shared preferences
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('phone_number', phoneController.text);
-
-      // Navigate to the next screen
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Bottomnavigationbar(),
-        ),
-        (route) => false,
-      );
-    } else {
-      throw Exception('Failed to load data: ${response.statusCode}');
+    if (phoneError != null || passwordError != null) {
+      setState(() {});
+      return;
     }
-  } catch (error) {
-    print('Error: $error');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(error.toString())),
-    );
-  } finally {
+
     setState(() {
-      isLoading = false; // Stop loading
+      isLoading = true; // Start loading
     });
+
+    try {
+      final Map<String, dynamic> requestBody = {
+        'phone': phoneController.text,
+        'password': passwordController.text,
+      };
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/login/'),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode(requestBody),
+      );
+
+      print(response.body);
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('phone_number', phoneController.text);
+        prefs.setString('customer_id',responseData['customer']['id'].toString());
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => Bottomnavigationbar()),
+          (route) => false,
+        );
+      } else {
+        throw Exception('Failed to load data: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.toString())),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
-}
 
   // Validate phone number
   String? validatePhone(String phone) {
@@ -121,29 +114,22 @@ class _LoginscreenState extends State<Loginscreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  SizedBox(
-                    height: 80,
-                  ),
+                  SizedBox(height: 80),
                   Image.asset('asset/images/carrot_color.png'),
-                  SizedBox(
-                    height: 80,
-                  ),
+                  SizedBox(height: 80),
                   Column(
                     children: [
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'Login',
-                          textAlign: TextAlign.left,
                           style: TextStyle(
                               color: Color(0xff181725),
                               fontSize: ht / 34.59,
                               fontWeight: FontWeight.w600),
                         ),
                       ),
-                      SizedBox(
-                        height: 20,
-                      ),
+                      SizedBox(height: 20),
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -151,18 +137,14 @@ class _LoginscreenState extends State<Loginscreen> {
                           style: TextStyle(color: Color(0xff7C7C7C), fontSize: 16),
                         ),
                       ),
-                      SizedBox(
-                        height: 35,
-                      ),
+                      SizedBox(height: 35),
                       TextField(
                         controller: phoneController,
                         decoration: InputDecoration(
                             labelText: 'Phone', errorText: phoneError),
                         keyboardType: TextInputType.phone,
                       ),
-                      SizedBox(
-                        height: 35,
-                      ),
+                      SizedBox(height: 35),
                       TextField(
                         obscureText: obscureText,
                         controller: passwordController,
@@ -179,19 +161,8 @@ class _LoginscreenState extends State<Loginscreen> {
                                   });
                                 })),
                       ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          'Forgot Password?',
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 30,
-                      ),
+                      SizedBox(height: 10),
+                      SizedBox(height: 30),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
@@ -199,20 +170,15 @@ class _LoginscreenState extends State<Loginscreen> {
                           fixedSize: Size(364, 67),
                           backgroundColor: Color(0xff53B175),
                         ),
-                        onPressed: isLoading ? null : handleLogin, // Disable button when loading
+                        onPressed: isLoading ? null : handleLogin,
                         child: isLoading
-                            ? CircularProgressIndicator(color: Colors.white) // Show loading indicator
+                            ? CircularProgressIndicator(color: Colors.white)
                             : Text(
                                 'Log In',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                ),
+                                style: TextStyle(fontSize: 18, color: Colors.white),
                               ),
                       ),
-                      SizedBox(
-                        height: 15,
-                      ),
+                      SizedBox(height: 15),
                       RichText(
                         text: TextSpan(
                             text: "Don't have an account? ",
@@ -231,7 +197,25 @@ class _LoginscreenState extends State<Loginscreen> {
                                   },
                               )
                             ]),
-                      )
+                      ),
+                      SizedBox(height: 20),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => StaffLoginScreen()), // Replace with actual staff login screen
+                          );
+                        },
+                        child: Text(
+                          'Login as Staff',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.blue,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -250,3 +234,6 @@ class _LoginscreenState extends State<Loginscreen> {
     );
   }
 }
+
+// Replace this with the actual staff login screen
+

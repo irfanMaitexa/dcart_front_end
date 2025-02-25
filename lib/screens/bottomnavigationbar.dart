@@ -1,47 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:online_grocery_app_ui/screens/my_order_screen.dart';
 
 import 'accountScreen.dart';
-import 'exploreScreen.dart';
 import 'favouriteScreen.dart';
 import 'homeScreen.dart';
 import 'mycartScreen.dart';
 import 'searchScreen.dart';
 
 class Bottomnavigationbar extends StatefulWidget {
-   Bottomnavigationbar({super.key,this.zone,this.area});
+  Bottomnavigationbar({super.key, this.zone, this.area});
 
-   String ? zone;
-   String ? area;
+  String? zone;
+  String? area;
 
   @override
   State<Bottomnavigationbar> createState() => _BottomnavigationbarState();
 }
 
 class _BottomnavigationbarState extends State<Bottomnavigationbar> {
-  
   List<Widget> pages = [];
-  int selectedIndex= 0;
-  
+  int selectedIndex = 0;
+
   @override
   void initState() {
-    
     pages.addAll([
-      Homescreen(zone:widget.zone,area: widget.area,),
+      Homescreen(zone: widget.zone, area: widget.area),
       Mycartscreen(),
-      Scaffold(),
+      CustomerOrdersScreen(customerId: 1,), // Placeholder for Orders screen
       Accountscreen()
     ]);
-    
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final ht = MediaQuery.of(context).size.height;
-    final wt = MediaQuery.of(context).size.width;
-
-    print(widget.area);
-
     return Scaffold(
       body: pages[selectedIndex],
 
@@ -55,12 +48,19 @@ class _BottomnavigationbarState extends State<Bottomnavigationbar> {
             selectedIndex = value;
             setState(() {});
           },
-
           items: [
-            BottomNavigationBarItem(label: 'Explore', icon: Icon(Icons.manage_search,color: Colors.black,)),
-            BottomNavigationBarItem(label: 'Cart', icon: Icon(Icons.shopping_cart_outlined,color: Colors.black,)),
-            BottomNavigationBarItem(label: 'Feedback', icon: Icon(Icons.feedback_outlined,color: Colors.black,)),
-            BottomNavigationBarItem(label: 'Account', icon: Icon(Icons.account_box_outlined,color: Colors.black,))
+            BottomNavigationBarItem(
+                label: 'Explore',
+                icon: Icon(Icons.manage_search, color: Colors.black)),
+            BottomNavigationBarItem(
+                label: 'Cart',
+                icon: Icon(Icons.shopping_cart_outlined, color: Colors.black)),
+            BottomNavigationBarItem(
+                label: 'Orders',
+                icon: Icon(Icons.receipt_long, color: Colors.black)), // Orders icon
+            BottomNavigationBarItem(
+                label: 'Account',
+                icon: Icon(Icons.account_box_outlined, color: Colors.black))
           ],
           selectedLabelStyle: TextStyle(color: Colors.black),
         ),

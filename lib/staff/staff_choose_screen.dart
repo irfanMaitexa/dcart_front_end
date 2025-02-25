@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:online_grocery_app_ui/staff/add_product_screen.dart';
+import 'package:online_grocery_app_ui/staff/view_feedback_screen.dart';
+import 'package:online_grocery_app_ui/staff/view_report.dart';
 
 import 'staff_view_product_screen.dart';
 
@@ -35,8 +37,10 @@ class StaffDashboardScreen extends StatelessWidget {
                 title: 'View Feedback',
                 icon: Icons.feedback_outlined,
                 onTap: () {
-                  // Navigate to View Feedback Screen
-                  print('Navigate to View Feedback Screen');
+                 
+
+                 Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackScreen(),));
+
                 },
               ),
               SizedBox(height: 20),
@@ -58,6 +62,12 @@ class StaffDashboardScreen extends StatelessWidget {
                 title: 'Sales Report',
                 icon: Icons.bar_chart_outlined,
                 onTap: () {
+                  
+
+                   Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SalesReportScreen()),
+    );
                   // Navigate to Sales Report Screen
                   print('Navigate to Sales Report Screen');
                 },

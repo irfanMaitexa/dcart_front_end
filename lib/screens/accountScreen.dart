@@ -256,6 +256,38 @@ class _AccountscreenState extends State<Accountscreen> {
                         ),
                       ),
                     ),
+                    Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+  child: ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      fixedSize: Size(double.infinity, 60),
+      backgroundColor: Colors.white,
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+    ),
+    onPressed: () {
+      // Show feedback pop-up dialog
+      _showFeedbackDialog(context);
+    },
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.feedback, color: Colors.orange),
+        SizedBox(width: 10),
+        Text(
+          'Make a Feedback',
+          style: TextStyle(
+            color: Colors.green,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    ),
+  ),
+),
 
                     // Log Out Button
                     Padding(
@@ -299,4 +331,122 @@ class _AccountscreenState extends State<Accountscreen> {
       ),
     );
   }
+
+
+
+  void _showFeedbackDialog(BuildContext context) {
+  // Controllers for the form fields
+  final TextEditingController messageController = TextEditingController();
+  int selectedRating = 5; // Default rating
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Submit Feedback'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Feedback Message Field
+              TextField(
+                controller: messageController,
+                decoration: InputDecoration(
+                  labelText: 'Your Feedback',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+              ),
+              SizedBox(height: 20),
+
+              // Rating Selection
+              Text('Rate your experience:'),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (int i = 1; i <= 5; i++)
+                    IconButton(
+                      icon: Icon(
+                        Icons.star,
+                        color: i <= selectedRating ? Colors.orange : Colors.grey,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          selectedRating = i;
+                        });
+                      },
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          // Cancel Button
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close the dialog
+            },
+            child: Text('Cancel'),
+          ),
+
+          // Submit Button
+          ElevatedButton(
+            onPressed: () async {
+              // Get the feedback message and rating
+              String message = messageController.text.trim();
+              int rating = selectedRating;
+
+              // Validate the input
+              if (message.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Please enter your feedback')),
+                );
+                return;
+              }
+
+              // Submit feedback (call your API here)
+              try {
+                await submitFeedback(message, rating);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Feedback submitted successfully!')),
+                );
+                Navigator.pop(context); // Close the dialog
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to submit feedback: $e')),
+                );
+              }
+            },
+            child: Text('Submit'),
+          ),
+        ],
+      );
+    },
+  );
 }
+
+
+
+
+
+Future<void> submitFeedback(String message, int rating) async {
+  final url = Uri.parse('$baseUrl/api/feedback/');
+  final response = await http.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: json.encode({
+      'customer': 1, // Replace with the actual customer ID
+      'message': message,
+      'rating': rating,
+    }),
+  );
+
+  if (response.statusCode != 201) {
+    throw Exception('Failed to submit feedback');
+  }
+}
+}
+
+

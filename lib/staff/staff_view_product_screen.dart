@@ -35,6 +35,9 @@ class _ViewProductScreenState extends State<ViewProductScreen> {
         setState(() {
           _products = data.cast<Map<String, dynamic>>(); // Update products list
         });
+
+        print(data);
+
       } else {
         // Handle server errors
         setState(() {
@@ -180,6 +183,7 @@ class _ViewProductScreenState extends State<ViewProductScreen> {
                         itemCount: _products.length,
                         itemBuilder: (context, index) {
                           final product = _products[index];
+                          print(product['id']);
                           return Card(
                             elevation: 4,
                             margin: EdgeInsets.only(bottom: 16),

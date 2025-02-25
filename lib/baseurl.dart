@@ -1,1 +1,2 @@
-const  String  baseUrl = 'https://c17e-117-213-14-221.ngrok-free.app';
+const  String  baseUrl = 'https://5df8-117-213-5-239.ngrok-free.app';
+const String wBaseUrl = 'wss://5df8-117-213-5-239.ngrok-free.app';
